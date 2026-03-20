@@ -705,6 +705,11 @@ export type ECUnitOption = {
     darkMode?: boolean | 'auto'
     textStyle?: GlobalTextStyleOption
     useUTC?: boolean
+    /**
+     * Whether to auto-enable touch gestures (pinch-zoom, pan) on touch devices.
+     * Set to false to disable. Default is true (auto-enabled on touch devices).
+     */
+    touchGestures?: boolean
     hoverLayerThreshold?: number
 
     legacyViewCoordSysCenterBase?: boolean
