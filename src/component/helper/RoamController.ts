@@ -46,9 +46,9 @@ export interface RoamOption {
     }
     api: ExtensionAPI
 
-    zoomOnMouseWheel?: boolean | 'ctrl' | 'shift' | 'alt'
-    moveOnMouseMove?: boolean | 'ctrl' | 'shift' | 'alt'
-    moveOnMouseWheel?: boolean | 'ctrl' | 'shift' | 'alt'
+    zoomOnMouseWheel?: boolean | 'ctrl' | 'shift' | 'alt' | 'touch'
+    moveOnMouseMove?: boolean | 'ctrl' | 'shift' | 'alt' | 'touch'
+    moveOnMouseWheel?: boolean | 'ctrl' | 'shift' | 'alt' | 'touch'
     /**
      * If fixed the page when pan
      */
@@ -573,7 +573,12 @@ function isAvailableBehavior(
 ) {
     const setting = settings[behaviorToCheck];
     return !behaviorToCheck || (
-        setting && (!isString(setting) || e.event[setting + 'Key' as 'shiftKey' | 'ctrlKey' | 'altKey'])
+        setting && (
+            !isString(setting)
+            || (setting === 'touch'
+                ? !!(e as any).zrByTouch
+                : e.event[setting + 'Key' as 'shiftKey' | 'ctrlKey' | 'altKey'])
+        )
     );
 }
 

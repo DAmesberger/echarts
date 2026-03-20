@@ -201,6 +201,11 @@ export default function axisTrigger(
         processOnAxis(axesInfo[tarKey], val, updaters, true, outputPayload);
     });
 
+    const tooltipModel = ecModel.getComponent('tooltip');
+    if (tooltipModel && tooltipModel.get('nearestSeries' as any)) {
+        filterToNearestSeries(dataByCoordSys, showValueMap, point, ecModel);
+    }
+
     updateModelActually(showValueMap, axesInfo, outputPayload);
     dispatchTooltipActually(dataByCoordSys, point, payload, dispatchAction);
     dispatchHighDownActually(axesInfo, dispatchAction, api);
@@ -523,6 +528,78 @@ function makeMapperParam(axisInfo: CollectedAxisInfo) {
     item.axisName = (item as any)[dim + 'AxisName'] = axisModel.name;
     item.axisId = (item as any)[dim + 'AxisId'] = axisModel.id;
     return item;
+}
+
+function filterToNearestSeries(
+    dataByCoordSys: DataByCoordSysCollection,
+    showValueMap: ShowValueMap,
+    point: number[],
+    ecModel: GlobalModel
+): void {
+    let minDist = Infinity;
+    let nearestEntry: DataIndex | null = null;
+
+    each(dataByCoordSys.list, function (coordSysItem) {
+        each(coordSysItem.dataByAxis, function (axisItem) {
+            each(axisItem.seriesDataIndices, function (dataIndex) {
+                const series = ecModel.getSeriesByIndex(dataIndex.seriesIndex);
+                if (!series) {
+                    return;
+                }
+
+                const coordSys = series.coordinateSystem;
+                if (!coordSys || !coordSys.dataToPoint) {
+                    return;
+                }
+
+                const data = series.getData();
+                const dims = coordSys.dimensions;
+                const dataValues: number[] = [];
+                for (let i = 0; i < dims.length; i++) {
+                    const dataDims = data.mapDimensionsAll(dims[i]);
+                    if (dataDims.length) {
+                        dataValues.push(data.get(dataDims[0], dataIndex.dataIndexInside) as number);
+                    }
+                }
+
+                if (dataValues.length === dims.length) {
+                    const pixelPoint = coordSys.dataToPoint(dataValues);
+                    const dx = pixelPoint[0] - point[0];
+                    const dy = pixelPoint[1] - point[1];
+                    const dist = dx * dx + dy * dy;
+
+                    if (dist < minDist) {
+                        minDist = dist;
+                        nearestEntry = dataIndex;
+                    }
+                }
+            });
+        });
+    });
+
+    if (!nearestEntry) {
+        return;
+    }
+
+    const nearest = nearestEntry;
+
+    each(dataByCoordSys.list, function (coordSysItem) {
+        each(coordSysItem.dataByAxis, function (axisItem) {
+            axisItem.seriesDataIndices = axisItem.seriesDataIndices.filter(function (item) {
+                return item.seriesIndex === nearest.seriesIndex
+                    && item.dataIndex === nearest.dataIndex;
+            });
+        });
+    });
+
+    each(showValueMap, function (valItem) {
+        if (valItem.payloadBatch) {
+            valItem.payloadBatch = valItem.payloadBatch.filter(function (item) {
+                return item.seriesIndex === nearest.seriesIndex
+                    && item.dataIndex === nearest.dataIndex;
+            });
+        }
+    });
 }
 
 function illegalPoint(point?: number[]) {

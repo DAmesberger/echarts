@@ -53,6 +53,12 @@ export interface TooltipOption extends CommonTooltipOption<TopLevelFormatterPara
     trigger?: 'item' | 'axis' | 'none'
 
     /**
+     * When trigger is 'axis', show only the nearest series to the cursor
+     * (by pixel distance) instead of all series at the hovered axis value.
+     */
+    nearestSeries?: boolean
+
+    /**
      * 'auto': use html by default, and use non-html if `document` is not defined
      * 'html': use html for tooltip
      * 'richText': use canvas, svg, and etc. for tooltip
@@ -104,6 +110,8 @@ class TooltipModel extends ComponentModel<TooltipOption> {
         // 'trigger' only works on coordinate system.
         // 'item' | 'axis' | 'none'
         trigger: 'item',
+
+        nearestSeries: false,
 
         // 'click' | 'mousemove' | 'none'
         triggerOn: 'mousemove|click',

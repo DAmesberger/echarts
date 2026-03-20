@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<!--
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+
+   http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+-->
+
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <script src="lib/simpleRequire.js"></script>
+        <script src="lib/config.js"></script>
+        <script src="lib/testHelper.js"></script>
+        <link rel="stylesheet" href="lib/reset.css" />
+    </head>
+    <body>
+        <style>
+            h1 {
+                line-height: 60px;
+                height: 60px;
+                background: #ddd;
+                text-align: center;
+                font-weight: bold;
+                font-size: 14px;
+            }
+            .chart {
+                height: 400px;
+            }
+            p.info {
+                padding: 10px;
+                background: #ffe;
+                border: 1px solid #cc0;
+                margin: 5px;
+                font-size: 13px;
+            }
+        </style>
+
+        <p class="info">
+            Test on a touch device or Chrome DevTools device emulation.<br>
+            Auto touch gestures inject inside dataZoom when DataZoomInsideComponent is available.<br>
+            Pinch-zoom and pan should work on touch, mouse behavior unchanged on desktop.
+        </p>
+
+        <h1>Default (auto touch gestures) | No explicit dataZoom config</h1>
+        <div class="chart" id="auto-touch"></div>
+
+        <h1>touchGestures: false | Touch gestures disabled</h1>
+        <div class="chart" id="touch-disabled"></div>
+
+        <h1>Explicit dataZoom: [{type: 'inside'}] | Preprocessor should not inject duplicates</h1>
+        <div class="chart" id="explicit-inside"></div>
+
+        <script>
+        require(['echarts'], function (echarts) {
+
+            var xData = [];
+            var data = [];
+            for (var i = 0; i < 100; i++) {
+                xData.push('Item ' + i);
+                data.push(Math.round(Math.random() * 200 + 50));
+            }
+
+            // --- Auto touch gestures (default) ---
+            var chart1 = echarts.init(document.getElementById('auto-touch'));
+            chart1.setOption({
+                tooltip: {trigger: 'axis'},
+                xAxis: {type: 'category', data: xData},
+                yAxis: {type: 'value'},
+                series: [{type: 'line', data: data}]
+            });
+
+            // --- Touch gestures disabled ---
+            var chart2 = echarts.init(document.getElementById('touch-disabled'));
+            chart2.setOption({
+                touchGestures: false,
+                tooltip: {trigger: 'axis'},
+                xAxis: {type: 'category', data: xData},
+                yAxis: {type: 'value'},
+                series: [{type: 'line', data: data}]
+            });
+
+            // --- Explicit inside dataZoom (preprocessor should skip) ---
+            var chart3 = echarts.init(document.getElementById('explicit-inside'));
+            chart3.setOption({
+                tooltip: {trigger: 'axis'},
+                xAxis: {type: 'category', data: xData},
+                yAxis: {type: 'value'},
+                dataZoom: [{type: 'inside'}, {type: 'slider'}],
+                series: [{type: 'line', data: data}]
+            });
+
+        });
+        </script>
+    </body>
+</html>

@@ -32,11 +32,11 @@ export interface InsideDataZoomOption extends DataZoomOption {
      */
     zoomLock?: boolean
 
-    zoomOnMouseWheel?: boolean | 'shift' | 'ctrl' | 'alt'
+    zoomOnMouseWheel?: boolean | 'shift' | 'ctrl' | 'alt' | 'touch'
 
-    moveOnMouseMove?: boolean | 'shift' | 'ctrl' | 'alt'
+    moveOnMouseMove?: boolean | 'shift' | 'ctrl' | 'alt' | 'touch'
 
-    moveOnMouseWheel?: boolean | 'shift' | 'ctrl' | 'alt'
+    moveOnMouseWheel?: boolean | 'shift' | 'ctrl' | 'alt' | 'touch'
 
     preventDefaultMouseMove?: boolean
 

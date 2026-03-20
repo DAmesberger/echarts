@@ -17,21 +17,11 @@
 * under the License.
 */
 
-import { EChartsExtensionInstallRegisters } from '../../extension';
-import InsideZoomModel from './InsideZoomModel';
-import InsideZoomView from './InsideZoomView';
-import {installDataZoomRoamProcessor} from './roams';
-import installCommon from './installCommon';
-import touchGesturesPreprocessor from '../../preprocessor/touchGestures';
+import env from 'zrender/src/core/env';
 
-export function install(registers: EChartsExtensionInstallRegisters) {
-
-    installCommon(registers);
-
-    registers.registerComponentModel(InsideZoomModel);
-    registers.registerComponentView(InsideZoomView);
-
-    installDataZoomRoamProcessor(registers);
-
-    registers.registerPreprocessor(touchGesturesPreprocessor);
+export function isTouchDevice(): boolean {
+    if (!env.hasGlobalWindow) {
+        return false;
+    }
+    return 'ontouchstart' in window || navigator.maxTouchPoints > 0;
 }

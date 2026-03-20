@@ -173,8 +173,11 @@ class SliderZoomView extends DataZoomView {
 
         // Notice: this._resetInterval() should not be executed when payload.type
         // is 'dataZoom', origin this._range should be maintained, otherwise 'pan'
-        // or 'zoom' info will be missed because of 'throttle' of this.dispatchAction,
-        if (!payload || payload.type !== 'dataZoom' || payload.from !== this.uid) {
+        // or 'zoom' info will be missed because of 'throttle' of this.dispatchAction.
+        // Also skip _buildView for dataZoom payloads from any source (e.g. inside
+        // dataZoom) to avoid expensive re-creation of data shadow graphics that
+        // haven't changed — _updateView handles clip/position updates. See #15409.
+        if (!payload || payload.type !== 'dataZoom') {
             this._buildView();
         }
 
